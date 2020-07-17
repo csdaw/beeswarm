@@ -1,5 +1,5 @@
 
-export(beeswarm, bxplot, swarmx, swarmy)
+export(beeswarm, bxplot, swarmx, swarmy, StatBeeswarm, stat_beeswarm, GeomBeeswarm)
 
 S3method(beeswarm, default)
 S3method(beeswarm, formula)
@@ -10,3 +10,5 @@ importFrom("grDevices", "extendrange", "xy.coords")
 importFrom("graphics", "axis", "box", "boxplot", "par", "plot", "points", "segments", "xinch", "yinch")
 importFrom("stats", "approx", "density", "na.omit", "quantile", "runif")
 importFrom("utils", "head", "tail")
+import("ggplot2")
+import("grid")

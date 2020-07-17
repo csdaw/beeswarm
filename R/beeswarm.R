@@ -29,14 +29,19 @@ beeswarm.default <- function(x,
   method <- match.arg(method)
   corral <- match.arg(corral)
   priority <- match.arg(priority)
+  # size of dots must be greater than 1
   if(length(cex) > 1) {
     stop('the parameter "cex" must have length 1')
   }
   stopifnot(side %in% -1:1)
+  print(class(x))
+  print(head(x))
   if(is.numeric(x)) {
+    
     x <- list(x)
   }
   n.groups <- length(x)
+  print(n.groups)
 
   #### Resolve group labels
   if(missing(labels) || is.null(labels)) {
