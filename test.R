@@ -14,8 +14,18 @@ beeswarm::beeswarm(distro,
 library(dplyr)
 library(ggplot2)
 
-distro2 <- as.data.frame(distro) %>% 
-  tidyr::pivot_longer(everything(), names_to = "variable", values_to = "value")
+distro2 <- data.frame(
+  variable = c(rep("runif", 100), rep("rnorm", 100)),
+  value = c(distro$runif, distro$rnorm)
+)
 
-ggplot2::ggplot(distro2, aes(x = variable, y = value)) + 
-  stat_beeswarm()
+distro3 <- as.data.frame(rev(distro)) %>% 
+  tidyr::pivot_longer(everything(),values_to = "value", names_to = "variable", )
+
+set.seed(123)
+ggplot2::ggplot(distro3, aes(x = variable, y = value)) + 
+  stat_beeswarm() + 
+  scale_y_continuous(limits = c(-3, 3)) + 
+  theme(
+    plot.margin = unit(c(0.12, 0.07, 0.12, 0.07), "npc")
+  )

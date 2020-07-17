@@ -11,7 +11,7 @@ beeswarm <- function (x, ...)
 
 
 ## here x should be a list or data.frame or numeric
-beeswarm.default <- function(x, 
+beeswarm.default <- function(input, 
     method = c("swarm", "center", "hex", "square"), 
     vertical = TRUE, horizontal = !vertical, 
     cex = 1, spacing = 1, breaks = NULL,
@@ -34,25 +34,23 @@ beeswarm.default <- function(x,
     stop('the parameter "cex" must have length 1')
   }
   stopifnot(side %in% -1:1)
-  print(class(x))
-  print(head(x))
-  if(is.numeric(x)) {
+
+  if(is.numeric(input)) {
     
-    x <- list(x)
+    input <- list(input)
   }
-  n.groups <- length(x)
-  print(n.groups)
+  n.groups <- length(input)
 
   #### Resolve group labels
   if(missing(labels) || is.null(labels)) {
-    if(is.null(names(x))) {
+    if(is.null(names(input))) {
       if(n.groups == 1) {
         labels <- NA
       } else {
         labels <- 1:n.groups
       }
     } else {
-      labels <- names(x)
+      labels <- names(input)
     }
   } else {
     labels <- rep(labels, length.out = n.groups)
@@ -65,18 +63,20 @@ beeswarm.default <- function(x,
       n.groups), domain = NA)
 
   if (is.null(dlab)) 
-     dlab <- deparse(substitute(x))
+     dlab <- deparse(substitute(input))
 
   ## this function returns a "group" vector, to complement "unlist"
-  unlistGroup <- function(x, nms = names(x)) rep(nms, sapply(x, length))
+  unlistGroup <- function(input, nms = names(input)) rep(nms, sapply(input, length))
 
-  x.val <- unlist(x)
-  x.gp <- unlistGroup(x, nms = labels)
+  x.val <- unlist(input)
+  
+  x.gp <- unlistGroup(input, nms = labels)
+
   if((range(x.val, finite = TRUE)[1] <= 0) && log)
     warning('values <= 0 omitted from logarithmic plot')
   
   n.obs <- length(x.val)
-  n.obs.per.group <- sapply(x, length)
+  n.obs.per.group <- sapply(input, length)
   
   #### Resolve xlim, ylim, dlim, xlab, ylab
   if(is.null(dlim)) {
@@ -125,10 +125,10 @@ beeswarm.default <- function(x,
   
   #### Resolve plotting characters and colors
   if(is.null(pwpch)) {
-    pch.out <- unlistGroup(x, nms = rep(pch, length.out = n.groups))
+    pch.out <- unlistGroup(input, nms = rep(pch, length.out = n.groups))
   } else {
     if(is.list(pwpch)) {
-      names(pwpch) <- names(x)
+      names(pwpch) <- names(input)
       stopifnot(all(sapply(pwpch, length) == n.obs.per.group))
       pch.out <- unlist(pwpch)
     } else {
@@ -138,10 +138,10 @@ beeswarm.default <- function(x,
   stopifnot(length(pch.out) == n.obs)
 
   if(is.null(pwcol)) {
-    col.out <- unlistGroup(x, nms = rep(col, length.out = n.groups))
+    col.out <- unlistGroup(input, nms = rep(col, length.out = n.groups))
   } else {
     if(is.list(pwcol)) {
-      names(pwcol) <- names(x)
+      names(pwcol) <- names(input)
       stopifnot(all(sapply(pwcol, length) == n.obs.per.group))
       col.out <- unlist(pwcol)
     } else {
@@ -151,10 +151,10 @@ beeswarm.default <- function(x,
   stopifnot(length(col.out) == n.obs)
 
   if(is.null(pwbg)) {
-    bg.out <- unlistGroup(x, nms = rep(bg, length.out = n.groups))
+    bg.out <- unlistGroup(input, nms = rep(bg, length.out = n.groups))
   } else {
     if(is.list(pwbg)) {
-      names(pwbg) <- names(x)
+      names(pwbg) <- names(input)
       stopifnot(all(sapply(pwbg, length) == n.obs.per.group))
       bg.out <- unlist(pwbg)
     } else {
@@ -164,10 +164,10 @@ beeswarm.default <- function(x,
   stopifnot(length(bg.out) == n.obs)
  
    if(is.null(pwcex)) {
-    cex.out <- unlistGroup(x, nms = rep(1, length.out = n.groups))
+    cex.out <- unlistGroup(input, nms = rep(1, length.out = n.groups))
   } else {
     if(is.list(pwcex)) {
-      names(pwcex) <- names(x)
+      names(pwcex) <- names(input)
       stopifnot(all(sapply(pwcex, length) == n.obs.per.group))
       cex.out <- unlist(pwcex)
     } else {
@@ -186,6 +186,7 @@ beeswarm.default <- function(x,
 
   #### Calculate the size of a plotting character along group- or data-axis
   sizeMultiplier <- par('cex') * cex * spacing
+
   if(horizontal) {
     size.g <- yinch(0.08, warn.log = FALSE) * sizeMultiplier
     size.d <- xinch(0.08, warn.log = FALSE) * sizeMultiplier
@@ -197,13 +198,15 @@ beeswarm.default <- function(x,
   ##### Calculate point positions g.pos, d.pos 
   if(method == 'swarm') {
     if(horizontal) {
-      g.offset <- lapply(x, function(a) swarmy(x = a, y = rep(0, length(a)), 
+      g.offset <- lapply(input, function(a) swarmy(x = a, y = rep(0, length(a)), 
           cex = sizeMultiplier, side = side, priority = priority)$y)
     } else {
-      g.offset <- lapply(x, function(a) swarmx(x = rep(0, length(a)), y = a, 
+      g.offset <- lapply(input, function(a) swarmx(x = rep(0, length(a)), y = a, 
           cex = sizeMultiplier, side = side, priority = priority)$x)
     }
-    d.pos <- x
+
+    d.pos <- input
+
   } else {          ####   non-swarm methods
     ##### first determine positions along the data axis
       if(method == 'hex') size.d <- size.d * sqrt(3) / 2  
@@ -211,22 +214,22 @@ beeswarm.default <- function(x,
         if(is.null(breaks))
           breaks <- 10 ^ seq(log10(dlim[1]), log10(dlim[2]) + size.d, by = size.d)
         if(length(breaks) == 1 && is.na(breaks[1])) {
-          d.index <- x
-          d.pos <- x
+          d.index <- input
+          d.pos <- input
         } else {
           mids <- 10 ^ ((log10(head(breaks, -1)) + log10(tail(breaks, -1))) / 2)
-          d.index <- lapply(x, cut, breaks = breaks, labels = FALSE)
+          d.index <- lapply(input, cut, breaks = breaks, labels = FALSE)
           d.pos <- lapply(d.index, function(a) mids[a])  
         }
       } else {               ## if data axis is NOT on a log scale
         if(is.null(breaks))
           breaks <- seq(dlim[1], dlim[2] + size.d, by = size.d)
         if(length(breaks) == 1 && is.na(breaks[1])) {
-          d.index <- x
-          d.pos <- x
+          d.index <- input
+          d.pos <- input
         } else {
           mids <- (head(breaks, -1) + tail(breaks, -1)) / 2
-          d.index <- lapply(x, cut, breaks = breaks, labels = FALSE)
+          d.index <- lapply(input, cut, breaks = breaks, labels = FALSE)
           d.pos <- lapply(d.index, function(a) mids[a])  
         }
       }  
