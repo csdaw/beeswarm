@@ -1,5 +1,5 @@
 
-export(beeswarm, bxplot, swarmx, swarmy, StatBeeswarm, stat_beeswarm, GeomBeeswarm)
+export(beeswarm, bxplot, swarmx, swarmy, StatBeeswarm, stat_beeswarm)
 
 S3method(beeswarm, default)
 S3method(beeswarm, formula)
